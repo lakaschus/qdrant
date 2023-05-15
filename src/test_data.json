@@ -1,0 +1,22 @@
+{
+    "experts": [
+        {
+            "first_name": "Phillip",
+            "last_name": "Yao-Lakaschus",
+            "email": "Philliplakaschus@gmail.com",
+            "day_of_birth": "1991/11/09",
+            "interests": "Playing guitar, playing computer games, programming, reading",
+            "skills": "Python, Natural language processing, Machine Learning, Dart, Flutter, Web Development, Javascript, App Development",
+            "brief_description": "Phillip is enthusiastic about Natural Language Processing. He knows a lot about its theoretical foundations and naturally is very capable using python. But he also knows a thing or two when it comes to Web and App Development."
+        },
+        {
+            "first_name": "Yao",
+            "last_name": "Yao",
+            "email": "Yaopianist@gmail.com",
+            "day_of_birth": "1985/04/17",
+            "interests": "Playing the piano, classical music, opera, traveling, eating good food",
+            "skills": "Playing piano on a professional level, music pedagogy, vocal coaching, teachning piano",
+            "brief_description": "Yao loves classical as well as modern music. She knows music theoretic foundations and can help musicians and vocalists to be more expressive."
+        }
+    ]
+}

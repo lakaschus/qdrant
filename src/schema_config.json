@@ -2,14 +2,14 @@
     "force_create": true,
     "index_type": "Flat",
     "metric_type": "L2",
-    "dimension": 768,
+    "size": 768,
     "schema": {
         "first_name": {"type": "string"},
         "last_name": {"type": "string"},
         "day_of_birth": {"type": "date"},
+        "email": {"type": "string"},
         "interests": {"type": "string", "vector": true},
         "skills": {"type": "string", "vector": true},
-        "brief_description": {"type": "string", "vector": true},
-        "biography": {"type": "string", "vector": true}
+        "brief_description": {"type": "string", "vector": true}
     }
 }

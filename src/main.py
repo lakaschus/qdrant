@@ -1,32 +1,57 @@
 from qdrant_client import QdrantClient
+from qdrant_client.http import models
 import json
+# Load QDRANT_API_KEY from environment
+from dotenv import load_dotenv
+import os
+load_dotenv()
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
+from langchain.vectorstores import Qdrant
+from langchain.embeddings import HuggingFaceEmbeddings
 
-# Create a new qdrant client
-client = QdrantClient("http://localhost:6333")
+embeddings = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-mpnet-base-v2"
+)
+doc_store = Qdrant.from_texts(
+    texts, embeddings, url="<qdrant-url>", api_key="<qdrant-api-key>", collection_name="texts"
+)
 
-# Load the index_config from index_config.json
-index_config = json.load(open("index_config.json"))
-client.create_collection("personal_data", index_config)
+# Connect to Qdrant
+qdrant = QdrantClient(
+    "https://78d0f8ed-dfb6-437b-ae44-688aedf1c4ce.us-east-1-0.aws.cloud.qdrant.io", 
+    prefer_grpc=True,
+    api_key=QDRANT_API_KEY,
+)
 
-# Function to create a new vector database index
-def create_index(collection_name, dimension):
-    index_config = {
-        "force_create": True,
-        "index_type": "Flat",
-        "metric_type": "L2",
-        "dimension": dimension
-    }
-    client.create_collection(collection_name, index_config)
+with open("src/schema_config.json", "r") as f:
+    schema = json.load(f)
 
-# Function to read/search data
-def search(collection_name, query, top_k=10):
-    search_result = client.search(collection_name, query, top_k=top_k)
-    return search_result
+# Create the collection
+collection_name = "personal_data"
+collections = qdrant.get_collections()
+if collection_name in [coll[1][0].name for coll in list(collections)]:
+    qdrant.delete_collection(collection_name)
+        
 
-# Function to create new data
-def create_data(collection_name, data, ids):
-    client.upsert(collection_name, data, ids)
+qdrant.create_collection(collection_name, vectors_config=models.VectorParams(size=768, distance=models.Distance.COSINE))
 
-# Function to delete data
-def delete_data(collection_name, ids):
-    client.delete(collection_name, ids)
+
+# Load the data from the JSON file
+with open("src/test_data.json", "r") as f:
+    data = json.load(f)
+
+# Insert the data into the collection
+for expert in data["experts"]:
+    qdrant.upsert(
+    collection_name=f"{collection_name}",
+    points=[
+        models.PointStruct(
+            id=1,
+            vector=[0.05, 0.61, 0.76, 0.74],
+            payload={
+                "city": "Berlin", 
+                "price": 1.99,
+            },
+        )
+    ]
+)
