@@ -6,19 +6,15 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
+QDRANT_URL = os.getenv("QDRANT_URL")
 from langchain.vectorstores import Qdrant
 from langchain.embeddings import HuggingFaceEmbeddings
 
-embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-mpnet-base-v2"
-)
-doc_store = Qdrant.from_texts(
-    texts, embeddings, url="<qdrant-url>", api_key="<qdrant-api-key>", collection_name="texts"
-)
+collection_name = "personal_data"
 
 # Connect to Qdrant
 qdrant = QdrantClient(
-    "https://78d0f8ed-dfb6-437b-ae44-688aedf1c4ce.us-east-1-0.aws.cloud.qdrant.io", 
+    QDRANT_URL, 
     prefer_grpc=True,
     api_key=QDRANT_API_KEY,
 )
@@ -27,31 +23,34 @@ with open("src/schema_config.json", "r") as f:
     schema = json.load(f)
 
 # Create the collection
-collection_name = "personal_data"
 collections = qdrant.get_collections()
 if collection_name in [coll[1][0].name for coll in list(collections)]:
     qdrant.delete_collection(collection_name)
         
 
-qdrant.create_collection(collection_name, vectors_config=models.VectorParams(size=768, distance=models.Distance.COSINE))
+qdrant.create_collection(collection_name, vectors_config=models.VectorParams(size=384, distance=models.Distance.COSINE))
 
 
 # Load the data from the JSON file
 with open("src/test_data.json", "r") as f:
     data = json.load(f)
+    
+embeddings = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2"
+)
+
 
 # Insert the data into the collection
-for expert in data["experts"]:
+for i, payload in enumerate(data["experts"]):
+    print(payload)
+    vector = embeddings.embed_query(str(payload))
     qdrant.upsert(
     collection_name=f"{collection_name}",
     points=[
         models.PointStruct(
-            id=1,
-            vector=[0.05, 0.61, 0.76, 0.74],
-            payload={
-                "city": "Berlin", 
-                "price": 1.99,
-            },
+            id=i,
+            vector=vector,
+            payload=payload,
         )
     ]
 )

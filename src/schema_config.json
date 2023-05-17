@@ -2,7 +2,7 @@
     "force_create": true,
     "index_type": "Flat",
     "metric_type": "L2",
-    "size": 768,
+    "size": 384,
     "schema": {
         "first_name": {"type": "string"},
         "last_name": {"type": "string"},
